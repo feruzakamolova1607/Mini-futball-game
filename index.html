@@ -4,131 +4,300 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Mini Futbol</title>
+<title>Super Penalti ⚽</title>
 <style>
+* { box-sizing: border-box; }
 body {
   margin: 0;
+  padding: 18px 12px;
   text-align: center;
   font-family: Arial, sans-serif;
-  background: #123c25;
   color: white;
+  background: linear-gradient(#102e25, #071710);
 }
-h1 { margin: 16px; }
-#field {
+h1 { margin: 5px 0; font-size: 30px; }
+p { color: #d5eadb; }
+.panel {
+  max-width: 540px;
+  margin: 16px auto;
+  padding: 12px;
+  border-radius: 16px;
+  background: #173d2b;
+}
+.stats {
+  display: flex;
+  justify-content: space-around;
+  gap: 8px;
+}
+.stat {
+  flex: 1;
+  padding: 10px 4px;
+  border-radius: 10px;
+  background: #24573a;
+}
+.stat strong {
+  display: block;
+  font-size: 24px;
+  color: #ffe66d;
+}
+.field {
   position: relative;
-  width: min(90vw, 600px);
-  height: 340px;
-  margin: 15px auto;
-  background: #269447;
-  border: 4px solid white;
-  box-sizing: border-box;
+  width: min(94vw, 500px);
+  height: 370px;
+  margin: 16px auto;
   overflow: hidden;
+  border: 3px solid white;
+  border-radius: 8px;
+  background: repeating-linear-gradient(
+    0deg, #258747 0 46px, #2c9850 46px 92px
+  );
 }
-#field::before {
-  content: "";
+.line {
   position: absolute;
   inset: 10px;
-  border: 2px solid white;
-  pointer-events: none;
+  border: 2px solid #ffffffb0;
 }
-#goal {
+.penalty-area {
   position: absolute;
   top: 0;
-  left: 35%;
-  width: 30%;
-  height: 48px;
-  border: 4px solid white;
-  box-sizing: border-box;
-  background: #ffffff33;
+  left: 17%;
+  width: 66%;
+  height: 105px;
+  border: 2px solid white;
+  border-top: none;
 }
-#ball {
+.goal {
   position: absolute;
-  left: calc(50% - 18px);
-  bottom: 45px;
-  font-size: 36px;
-  transition: left .35s, bottom .35s;
+  top: 8px;
+  left: 25%;
+  width: 50%;
+  height: 70px;
+  border: 7px solid white;
+  border-top: 5px solid white;
+  background: repeating-linear-gradient(
+    90deg, #ffffff28 0 10px, #ffffff65 10px 12px
+  );
+  box-shadow: 0 3px 8px #0007;
 }
 #keeper {
   position: absolute;
-  top: 65px;
-  left: calc(50% - 18px);
-  font-size: 34px;
-  transition: left .25s;
+  top: 24px;
+  left: 50%;
+  z-index: 2;
+  font-size: 43px;
+  transform: translateX(-50%);
+  transition: left .3s ease;
+}
+#ball {
+  position: absolute;
+  left: 50%;
+  bottom: 47px;
+  z-index: 3;
+  font-size: 37px;
+  transform: translateX(-50%);
+  transition: left .45s ease, bottom .45s ease;
+}
+.aim {
+  position: absolute;
+  top: 125px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #fff5a6;
+  font-size: 14px;
+  font-weight: bold;
+}
+.controls { max-width: 540px; margin: auto; }
+.targets {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0;
 }
 button {
-  padding: 12px 22px;
-  margin: 5px;
+  padding: 13px 10px;
   border: 0;
-  border-radius: 10px;
-  font-size: 17px;
+  border-radius: 11px;
+  font-size: 16px;
+  font-weight: bold;
   cursor: pointer;
+  touch-action: manipulation;
 }
-#shoot { background: #ffdc35; }
+.targets button {
+  flex: 1;
+  background: #d7f3df;
+  color: #153b25;
+}
+.targets button.selected {
+  background: #ffe15a;
+  outline: 3px solid white;
+}
+#shoot {
+  width: 100%;
+  background: #ffcf35;
+  color: #28200b;
+  font-size: 19px;
+}
+#reset {
+  margin-top: 9px;
+  background: #315a47;
+  color: white;
+}
+button:disabled { opacity: .5; cursor: default; }
+#message {
+  min-height: 28px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #ffe66d;
+}
+.hint { font-size: 13px; }
 </style>
 </head>
 <body>
-<h1>⚽ Mini Futbol</h1>
-<p>To‘pni darvozaga tepib, gol uring!</p>
-<div id="field">
-  <div id="goal"></div>
+
+<h1>⚽ SUPER PENALTI</h1>
+<p>Darvozabonni aldang va gol uring!</p>
+
+<div class="panel stats">
+  <div class="stat">Gollar<strong id="goals">0</strong></div>
+  <div class="stat">Zarbalar<strong id="shots">0/5</strong></div>
+  <div class="stat">Seyvlar<strong id="saves">0</strong></div>
+</div>
+
+<div class="field" id="field">
+  <div class="line"></div>
+  <div class="penalty-area"></div>
+  <div class="goal"></div>
   <div id="keeper">🧤</div>
+  <div class="aim" id="aim">NISHONNI TANLANG</div>
   <div id="ball">⚽</div>
 </div>
-<h2 id="score">Gollar: 0</h2>
-<p id="message">O‘yinni boshlang!</p>
-<button id="shoot" onclick="shoot()">TO‘P TEPISH</button>
-<button onclick="resetGame()">QAYTA BOSHLASH</button>
+
+<div class="controls">
+  <p>Qayerga tepmoqchisiz?</p>
+  <div class="targets">
+    <button data-target="left">⬅ Chap</button>
+    <button data-target="center" class="selected">⬆ Markaz</button>
+    <button data-target="right">O‘ng ➡</button>
+  </div>
+
+  <button id="shoot">⚽ TO‘P TEPISH</button>
+  <p id="message" aria-live="polite">Birinchi zarbangizni bering!</p>
+  <p class="hint">5 ta imkoniyat bor. Ko‘proq gol urishga harakat qiling!</p>
+  <button id="reset">🔄 QAYTA BOSHLASH</button>
+</div>
+
 <script>
+const $ = id => document.getElementById(id);
+
 let goals = 0;
 let shots = 0;
+let saves = 0;
+let target = "center";
+let busy = false;
+
+const positions = {
+  left: 34,
+  center: 50,
+  right: 66
+};
+
+const buttons = document.querySelectorAll("[data-target]");
+
+buttons.forEach(button => {
+  button.addEventListener("click", () => {
+    if (busy || shots >= 5) return;
+
+    target = button.dataset.target;
+    buttons.forEach(b => b.classList.toggle(
+      "selected", b.dataset.target === target
+    ));
+
+    $("aim").textContent = {
+      left: "CHAP TOMON",
+      center: "MARKAZ",
+      right: "O‘NG TOMON"
+    }[target];
+  });
+});
+
+function updateStats() {
+  $("goals").textContent = goals;
+  $("shots").textContent = `${shots}/5`;
+  $("saves").textContent = saves;
+}
 
 function shoot() {
-  if (shots >= 5) {
-    document.getElementById("message").textContent =
-      "O‘yin tugadi! Qayta boshlang.";
-    return;
-  }
+  if (busy || shots >= 5) return;
 
+  busy = true;
   shots++;
-  const ball = document.getElementById("ball");
-  const keeper = document.getElementById("keeper");
-  const message = document.getElementById("message");
+  $("shoot").disabled = true;
+  buttons.forEach(b => b.disabled = true);
 
-  const target = 38 + Math.random() * 24;
-  const save = 35 + Math.random() * 30;
+  // Darvozabon chap, markaz yoki o‘ngga sakraydi.
+  const choices = ["left", "center", "right"];
+  const keeperChoice = choices[Math.floor(Math.random() * 3)];
 
-  ball.style.left = `calc(${target}% - 18px)`;
-  ball.style.bottom = "245px";
-  keeper.style.left = `calc(${save}% - 18px)`;
+  $("keeper").style.left = positions[keeperChoice] + "%";
+  $("ball").style.left = positions[target] + "%";
+  $("ball").style.bottom = "275px";
+  $("aim").textContent = "ZARBA!";
 
-  if (Math.abs(target - save) < 10) {
-    message.textContent = "Darvozabon to‘pni qaytardi!";
+  // Bir xil yo‘nalishda bo‘lsa, darvozabon seyv qilishi mumkin.
+  const saved = target === keeperChoice;
+
+  if (saved) {
+    saves++;
+    $("message").textContent = "🧤 Ajoyib seyv! Darvozabon qaytardi!";
   } else {
     goals++;
-    message.textContent = "GOOOL! Ajoyib zarba!";
+    $("message").textContent = "🥅 GOOOL! Zo‘r zarba!";
   }
 
-  document.getElementById("score").textContent =
-    `Gollar: ${goals} | Zarba: ${shots}/5`;
+  updateStats();
 
-  document.getElementById("shoot").disabled = true;
   setTimeout(() => {
-    ball.style.left = "calc(50% - 18px)";
-    ball.style.bottom = "45px";
-    document.getElementById("shoot").disabled = false;
-  }, 500);
+    $("ball").style.left = "50%";
+    $("ball").style.bottom = "47px";
+
+    if (shots >= 5) {
+      $("message").textContent =
+        `🏆 O‘yin tugadi! Natija: ${goals} gol, ${saves} seyv.`;
+      $("aim").textContent = "O‘YIN TUGADI";
+      $("shoot").textContent = "O‘YIN TUGADI";
+    } else {
+      $("aim").textContent = "KEYINGI ZARBANI TANLANG";
+      busy = false;
+      $("shoot").disabled = false;
+      buttons.forEach(b => b.disabled = false);
+    }
+  }, 700);
 }
 
 function resetGame() {
   goals = 0;
   shots = 0;
-  document.getElementById("score").textContent = "Gollar: 0";
-  document.getElementById("message").textContent = "O‘yinni boshlang!";
-  document.getElementById("ball").style.left = "calc(50% - 18px)";
-  document.getElementById("ball").style.bottom = "45px";
-  document.getElementById("keeper").style.left = "calc(50% - 18px)";
-  document.getElementById("shoot").disabled = false;
+  saves = 0;
+  target = "center";
+  busy = false;
+
+  $("keeper").style.left = "50%";
+  $("ball").style.left = "50%";
+  $("ball").style.bottom = "47px";
+  $("aim").textContent = "NISHONNI TANLANG";
+  $("message").textContent = "Yangi o‘yin boshlandi!";
+  $("shoot").textContent = "⚽ TO‘P TEPISH";
+  $("shoot").disabled = false;
+
+  buttons.forEach(b => {
+    b.disabled = false;
+    b.classList.toggle("selected", b.dataset.target === "center");
+  });
+
+  updateStats();
 }
+
+$("shoot").addEventListener("click", shoot);
+$("reset").addEventListener("click", resetGame);
 </script>
 </body>
 </html>
